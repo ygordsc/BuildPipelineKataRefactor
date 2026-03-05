@@ -1,11 +1,34 @@
-Build Pipeline Refactoring Kata
-===============================
+# Build Pipeline Refactoring Kata
 
-Your task is to add a new feature - a new step in the build pipeline. If the existing tests pass, deploy to a staging environment and run smoke tests. Only if they succeed do you proceed to deploy to production. If there are no smoke tests, fail the pipeline and email the message "Pipeline failed - no smoke tests". In other cases be sure to add suitable log messages and include in the email which tests or deployment failed if any. 
+Este repositório contém a minha solução para o [BuildPipeline-Refactoring-Kata](https://github.com/emilybache/BuildPipeline-Refactoring-Kata). O objetivo deste Kata é praticar técnicas de refatoração em um código legado que sofre de forte acoplamento e más práticas de Orientação a Objetos.
 
-Before you make changes to the code you will want to add some tests for the existing functionality. If you prefer to start with the refactoring, go to the 'with_tests' branch.
+---
 
+## Problema Principal
 
-## Acknowledgements
+A classe `Pipeline` original atuava como um orquestrador de build e deploy, mas apresentava diversos "Code Smells":
+* **(Aninhamento profundo):** Múltiplos blocos de `if/else` aninhados faziam com que o fluxo de execução fosse difícil de ler.
+* **Alto Acoplamento:** A classe dependia fortemente de implementações concretas, como a classe `Emailer`, dificultando a extensão para novos meios de notificação.
 
-This exercise was originally named "Untangled Conditionals Kata" and was designed by [Tom Oram](https://github.com/tomphp). I wanted to use it as a test design kata as well as a refactoring kata, so I removed the tests from the main branch and put them on the 'with_tests' branch instead.
+---
+
+## Melhorias Realizadas
+
+### 1. Guard Clauses (Retornos Antecipados)
+* **Ação:** A lógica de condicionais foi invertida para tratar os cenários de falha primeiro, retornando imediatamente.
+* **Justificativa:** Eliminou a necessidade de blocos `else`. O código agora possui uma leitura linear, facilitando o entendimento do fluxo.
+
+### 2. Remoção de Variáveis Temporárias
+* **Ação:** Variáveis booleanas - `testsPassed` e `deploySuccessful` - que guardavam estado dentro dos métodos de validação foram removidas. Os métodos agora retornam `true` ou `false` diretamente.
+* **Justificativa:** Torna as funções mais diretas e com responsabilidade única.
+
+### 3. Princípio da Inversão de Dependência (SOLID - DIP)
+* **Ação:** Criação da interface `NotificationService` para substituir o acoplamento com a classe concreta `Emailer`. 
+* **Justificativa:** O `Pipeline` agora depende de uma abstração, não de uma implementação. Isso respeita o **Open/Closed Principle** (podemos adicionar notificações via Slack ou SMS no futuro sem alterar o `Pipeline`) e permite a injeção de *Mocks* para a criação de testes de unidade isolados.
+
+---
+
+## Tecnologias Utilizadas
+* Java
+* Princípios SOLID
+* Refatoração (Clean Code)
